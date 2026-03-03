@@ -9,7 +9,9 @@ import { ObjectId } from "mongodb";
 
 const DB_NAME = "smartcampustech";
 
-async function getCollection<T>(name: string) {
+import type { Document } from "mongodb";
+
+async function getCollection<T extends Document>(name: string) {
   const client = await mongoClientPromise;
   const db = client.db(DB_NAME);
   return db.collection<T>(name);
