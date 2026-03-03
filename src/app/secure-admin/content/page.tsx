@@ -5,11 +5,16 @@ import type { WebsiteContent } from "@/lib/models";
 
 type ContentKey = WebsiteContent["key"];
 
+/* -----------------------------
+   FIXED TOAST TYPES
+------------------------------ */
+type ToastVariant = "success" | "error";
+
 type Toast = {
   id: number;
   message: string;
-  variant?: "success" | "error";
-} | null;
+  variant: ToastVariant;
+};
 
 const contentKeys: { value: ContentKey; label: string }[] = [
   { value: "home-hero", label: "Home – hero" },
@@ -21,18 +26,28 @@ const contentKeys: { value: ContentKey; label: string }[] = [
 ];
 
 export default function AdminContentPage() {
-  const [selectedKey, setSelectedKey] = useState<ContentKey>("home-hero");
+  const [selectedKey, setSelectedKey] =
+    useState<ContentKey>("home-hero");
   const [rawContent, setRawContent] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [toast, setToast] = useState<Toast>(null);
+  const [toast, setToast] = useState<Toast | null>(null);
 
-  const showToast = (message: string, variant: Toast["variant"] = "success") => {
+  /* -----------------------------
+     FIXED showToast
+  ------------------------------ */
+  const showToast = (
+    message: string,
+    variant: ToastVariant = "success"
+  ) => {
     const id = Date.now();
     setToast({ id, message, variant });
+
     setTimeout(() => {
-      setToast((current) => (current && current.id === id ? null : current));
+      setToast((current) =>
+        current && current.id === id ? null : current
+      );
     }, 3000);
   };
 
@@ -40,20 +55,26 @@ export default function AdminContentPage() {
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch(`/api/admin/content?key=${encodeURIComponent(key)}`, {
-        cache: "no-store"
-      });
-      if (!res.ok) {
-        throw new Error("Failed to load content");
-      }
-      const data = (await res.json()) as { content: unknown | null };
+
+      const res = await fetch(
+        `/api/admin/content?key=${encodeURIComponent(key)}`,
+        { cache: "no-store" }
+      );
+
+      if (!res.ok) throw new Error("Failed to load content");
+
+      const data = (await res.json()) as {
+        content: unknown | null;
+      };
+
       if (!data.content) {
         setRawContent("{\n  \n}");
       } else {
-        setRawContent(JSON.stringify(data.content, null, 2));
+        setRawContent(
+          JSON.stringify(data.content, null, 2)
+        );
       }
     } catch (err) {
-      // eslint-disable-next-line no-console
       console.error(err);
       setError("Unable to load content. Please try again.");
       setRawContent("");
@@ -69,8 +90,10 @@ export default function AdminContentPage() {
   const handleSave = async (event: React.FormEvent) => {
     event.preventDefault();
     setSaving(true);
+
     try {
       let parsed: unknown = null;
+
       if (rawContent.trim()) {
         parsed = JSON.parse(rawContent);
       }
@@ -93,7 +116,6 @@ export default function AdminContentPage() {
 
       showToast("Content updated successfully.", "success");
     } catch (err) {
-      // eslint-disable-next-line no-console
       console.error(err);
       showToast(
         "Unable to save content. Ensure valid JSON and try again.",
@@ -111,11 +133,11 @@ export default function AdminContentPage() {
           Website content
         </h1>
         <p className="mt-1 text-[11px] text-slate-400">
-          Edit structured JSON blocks backed by the{" "}
-          <code className="rounded bg-slate-900 px-1.5 py-0.5 text-[10px] text-slate-100">
+          Edit structured JSON blocks stored in the
+          <code className="mx-1 rounded bg-slate-900 px-1.5 py-0.5 text-[10px] text-slate-100">
             websiteContent
-          </code>{" "}
-          collection. Public pages can consume these keys to avoid hardcoded copy.
+          </code>
+          collection.
         </p>
       </div>
 
@@ -124,10 +146,13 @@ export default function AdminContentPage() {
           <label className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
             Content key
           </label>
+
           <select
             value={selectedKey}
-            onChange={(e) => setSelectedKey(e.target.value as ContentKey)}
-            className="rounded-full border border-slate-700/70 bg-slate-950/80 px-3 py-1.5 text-[11px] text-slate-100 outline-none focus:border-brand-400/80 focus:ring-1 focus:ring-brand-500/40"
+            onChange={(e) =>
+              setSelectedKey(e.target.value as ContentKey)
+            }
+            className="rounded-full border border-slate-700 bg-slate-950 px-3 py-1.5 text-[11px] text-slate-100 focus:border-brand-400 focus:ring-1 focus:ring-brand-500/40"
           >
             {contentKeys.map((item) => (
               <option key={item.value} value={item.value}>
@@ -135,47 +160,42 @@ export default function AdminContentPage() {
               </option>
             ))}
           </select>
+
           {loading && (
-            <span className="text-[11px] text-slate-500">Loading content…</span>
+            <span className="text-[11px] text-slate-500">
+              Loading…
+            </span>
           )}
         </div>
 
         {error && (
-          <p className="text-[11px] text-rose-300" aria-live="polite">
+          <p className="text-[11px] text-rose-400">
             {error}
           </p>
         )}
 
-        <div className="space-y-1.5">
-          <label className="block text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-            JSON content
-          </label>
-          <textarea
-            rows={14}
-            value={rawContent}
-            onChange={(e) => setRawContent(e.target.value)}
-            className="w-full rounded-2xl border border-slate-800/80 bg-slate-950/80 px-3 py-2 font-mono text-[11px] text-slate-100 outline-none focus:border-brand-400/80 focus:ring-2 focus:ring-brand-500/40"
-            spellCheck={false}
-          />
-          <p className="text-[10px] text-slate-500">
-            Paste or edit valid JSON. This is stored as-is and can represent rich
-            page sections, hero content, or SEO metadata.
-          </p>
-        </div>
+        <textarea
+          rows={14}
+          value={rawContent}
+          onChange={(e) => setRawContent(e.target.value)}
+          className="w-full rounded-2xl border border-slate-800 bg-slate-950 px-3 py-2 font-mono text-[11px] text-slate-100 focus:border-brand-400 focus:ring-2 focus:ring-brand-500/40"
+          spellCheck={false}
+        />
 
         <div className="flex justify-end gap-2">
           <button
             type="button"
             onClick={() => void loadContent(selectedKey)}
             disabled={loading || saving}
-            className="rounded-full border border-slate-700/70 px-4 py-1.5 text-[11px] text-slate-200 hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-70"
+            className="rounded-full border border-slate-700 px-4 py-1.5 text-[11px] text-slate-200 hover:border-slate-500 disabled:opacity-70"
           >
             Reload
           </button>
+
           <button
             type="submit"
             disabled={saving}
-            className="rounded-full bg-brand-600 px-4 py-1.5 text-[11px] font-semibold text-white shadow-sm shadow-brand-600/40 hover:bg-brand-500 disabled:cursor-not-allowed disabled:opacity-70"
+            className="rounded-full bg-brand-600 px-4 py-1.5 text-[11px] font-semibold text-white hover:bg-brand-500 disabled:opacity-70"
           >
             {saving ? "Saving..." : "Save content"}
           </button>
@@ -187,8 +207,8 @@ export default function AdminContentPage() {
           <div
             className={`rounded-2xl px-4 py-3 text-xs shadow-lg ${
               toast.variant === "error"
-                ? "border border-rose-500/70 bg-rose-500/10 text-rose-100"
-                : "border border-emerald-500/70 bg-emerald-500/10 text-emerald-100"
+                ? "border border-rose-500 bg-rose-500/10 text-rose-100"
+                : "border border-emerald-500 bg-emerald-500/10 text-emerald-100"
             }`}
           >
             {toast.message}
@@ -198,4 +218,3 @@ export default function AdminContentPage() {
     </div>
   );
 }
-
