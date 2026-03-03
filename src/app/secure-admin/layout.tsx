@@ -13,11 +13,13 @@ type AdminUserInfo = {
   email: string;
 };
 
+type ToastVariant = "success" | "error";
+
 type ToastState = {
   id: number;
   message: string;
-  variant?: "success" | "error";
-} | null;
+  variant: ToastVariant;
+};
 
 const sidebarItems = [
   { label: "Dashboard", href: "/secure-admin" },
@@ -35,7 +37,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const router = useRouter();
   const [admin, setAdmin] = useState<AdminUserInfo | null>(null);
   const [loadingUser, setLoadingUser] = useState(true);
-  const [toast, setToast] = useState<ToastState>(null);
+  const [toast, setToast] = useState<ToastState | null>(null);
 
   useEffect(() => {
     const loadUser = async () => {
