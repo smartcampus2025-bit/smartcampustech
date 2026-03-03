@@ -14,11 +14,13 @@ type ProjectFormState = {
   isPublished: boolean;
 };
 
+type ToastVariant = "success" | "error";
+
 type Toast = {
   id: number;
   message: string;
-  variant?: "success" | "error";
-} | null;
+  variant: ToastVariant;
+};
 
 export default function AdminProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -27,7 +29,7 @@ export default function AdminProjectsPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [saving, setSaving] = useState(false);
-  const [toast, setToast] = useState<Toast>(null);
+  const [toast, setToast] = useState<Toast | null>(null);
 
   const [form, setForm] = useState<ProjectFormState>({
     slug: "",

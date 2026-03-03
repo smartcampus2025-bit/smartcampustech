@@ -10,11 +10,13 @@ type UploadRecord = {
   webContentLink?: string | null;
 };
 
+type ToastVariant = "success" | "error";
+
 type Toast = {
   id: number;
   message: string;
-  variant?: "success" | "error";
-} | null;
+  variant: ToastVariant;
+};
 
 export default function AdminMediaPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -23,7 +25,7 @@ export default function AdminMediaPage() {
   const [asCover, setAsCover] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploads, setUploads] = useState<UploadRecord[]>([]);
-  const [toast, setToast] = useState<Toast>(null);
+  const [toast, setToast] = useState<Toast | null>(null);
 
   const showToast = (message: string, variant: Toast["variant"] = "success") => {
     const id = Date.now();

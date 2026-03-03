@@ -3,11 +3,13 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Lead } from "@/lib/models";
 
+type ToastVariant = "success" | "error";
+
 type Toast = {
   id: number;
   message: string;
-  variant?: "success" | "error";
-} | null;
+  variant: ToastVariant;
+};
 
 const statusOptions: { value: Lead["status"]; label: string }[] = [
   { value: "new", label: "New" },
@@ -20,7 +22,7 @@ export default function AdminLeadsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
-  const [toast, setToast] = useState<Toast>(null);
+  const [toast, setToast] = useState<Toast | null>(null);
 
   const showToast = (message: string, variant: Toast["variant"] = "success") => {
     const id = Date.now();

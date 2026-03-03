@@ -3,11 +3,13 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Testimonial } from "@/lib/models";
 
+type ToastVariant = "success" | "error";
+
 type Toast = {
   id: number;
   message: string;
-  variant?: "success" | "error";
-} | null;
+  variant: ToastVariant;
+};
 
 type TestimonialFormState = {
   name: string;
@@ -29,7 +31,7 @@ export default function AdminTestimonialsPage() {
     quote: "",
     projectSlug: ""
   });
-  const [toast, setToast] = useState<Toast>(null);
+  const [toast, setToast] = useState<Toast | null>(null);
 
   const showToast = (message: string, variant: Toast["variant"] = "success") => {
     const id = Date.now();
