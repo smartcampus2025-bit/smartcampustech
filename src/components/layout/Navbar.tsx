@@ -4,8 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "../ui/ThemeToggle";
 import { MotionDiv } from "../ui/MotionDiv";
+import type { Route } from "next";
 
-const navItems = [
+const navItems: { href: Route; label: string }[]  = [
   { href: "/", label: "Home" },
   { href: "/services", label: "Services" },
   { href: "/projects", label: "Projects" },
